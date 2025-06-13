@@ -4,12 +4,11 @@ namespace GestionHotel.Apis.Endpoints.Booking;
 
 public static class BookingHandler
 {
-    public static async Task<IResult> GetAvailableRooms(
-        [FromServices] IRoomService roomService,
+    public static Task<BookingView> GetAvailableRooms(
+        HttpContext context,
         [AsParameters] GetAvailableRoomsInput input)
     {
-        var rooms = await roomService.GetAvailableRooms(input.StartDate, input.EndDate);
-        return Results.Ok(rooms);
+        return Task.FromResult(new BookingView());
     }
 
     public static async Task<IResult> Create(
@@ -25,3 +24,5 @@ public static class BookingHandler
         return Results.Ok(result);
     }
 }
+
+

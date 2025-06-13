@@ -1,16 +1,24 @@
-﻿using GestionHotel.Models;
+﻿using GestionHotel.Data;
+using GestionHotel.Models;
+using System.Collections.Generic;
+using System.Text.Json;
+using System.Threading.Tasks;
 
-public class RoomService : IRoomService
+namespace GestionHotel.Services
 {
-    private readonly List<Room> _rooms = new()
+    public class RoomService
     {
-        new Room { Id = 1, Type = "Simple", Capacity = 1, PricePerNight = 80, Status = RoomStatus.Neu f },
-        new Room { Id = 2, Type = "Double", Capacity = 2, PricePerNight = 120, Status = RoomStatus.RienASignaler }
-    };
+        private readonly SupabaseClient _supabaseClient;
 
-    public Task<List<Room>> GetAvailableRooms(DateTime startDate, DateTime endDate)
-    {
-        // Simuler la logique métier pour l'instant
-        return Task.FromResult(_rooms);
+        public RoomService(SupabaseClient supabaseClient)
+        {
+            _supabaseClient = supabaseClient;
+        }
+
+        public async Task<List<Room>> GetAllRoomsAsync()
+        {
+            var json = await _supabaseClient.GetDataAsync("rooms"); // le nom de ta table Supabase
+            return JsonSerializer.Deserialize<List<Room>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
     }
 }
