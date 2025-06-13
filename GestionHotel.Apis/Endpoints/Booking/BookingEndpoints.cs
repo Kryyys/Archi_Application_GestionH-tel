@@ -1,9 +1,8 @@
 ﻿namespace GestionHotel.Apis.Endpoints.Booking;
 
-
 public static class BookingEndpoints
 {
-    private const string BASE_URL = "/api/v1/booking/";
+    private const string BASE_URL = "/api/v1/booking";
 
     public static void MapBookingsEndpoints(this IEndpointRouteBuilder routes)
     {

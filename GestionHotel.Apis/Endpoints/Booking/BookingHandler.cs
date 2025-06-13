@@ -4,27 +4,24 @@ namespace GestionHotel.Apis.Endpoints.Booking;
 
 public static class BookingHandler
 {
-    public static Task<BookingView> GetAvailableRooms(HttpContext context, SampleInjectionInterface sampleInjectionInterface, [AsParameters] GetAvailableRoomsInput input)
+    public static async Task<IResult> GetAvailableRooms(
+        [FromServices] IRoomService roomService,
+        [AsParameters] GetAvailableRoomsInput input)
     {
-        sampleInjectionInterface.DoSomething();
-        return Task.FromResult(new BookingView());
+        var rooms = await roomService.GetAvailableRooms(input.StartDate, input.EndDate);
+        return Results.Ok(rooms);
     }
 
-    public static Task<BookingResult> Create(HttpContext context, [FromBody]BookingInput input)
+    public static async Task<IResult> Create(
+        [FromBody] BookingInput input)
     {
-        return Task.FromResult(new BookingResult());
-    }
-}
+        // Simule la création de réservation
+        var result = new BookingResult
+        {
+            Success = true,
+            Message = "Réservation créée avec succès"
+        };
 
-public interface SampleInjectionInterface
-{
-    void DoSomething();
-}
-
-public class SampleInjectionImplementation : SampleInjectionInterface
-{
-    public void DoSomething()
-    {
-        Console.WriteLine("Do something");
+        return Results.Ok(result);
     }
 }

@@ -2,6 +2,7 @@ namespace GestionHotel.Apis.Endpoints.Booking;
 
 public class GetAvailableRoomsInput
 {
-    public DateTime? From { get; set; }
-    public DateTime? To { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
 }
+
