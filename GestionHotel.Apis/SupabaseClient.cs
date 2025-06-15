@@ -27,6 +27,14 @@
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsStringAsync();
         }
+        
+        public async Task<string> GetFilteredDataAsync(string tableName, string filter)
+        {
+            var response = await _client.GetAsync($"{_url}/rest/v1/{tableName}?{filter}");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsStringAsync();
+        }
+
 
         // Ajouter POST, PATCH, DELETE ici si besoin
     }
