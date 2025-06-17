@@ -1,0 +1,626 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Hôtel - Réservations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .search-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .search-section h2 {
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-group input, .form-group select {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            background: white;
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(238, 90, 36, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #48cae4 0%, #023e8a 100%);
+            color: white;
+            margin-left: 10px;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(2, 62, 138, 0.4);
+        }
+
+        .results-section {
+            margin-top: 30px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 15px;
+        }
+
+        .results-header h3 {
+            color: #2d3436;
+            font-size: 1.5rem;
+        }
+
+        .results-count {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: #2d3436;
+        }
+
+        .rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .room-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .room-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border-color: #4facfe;
+        }
+
+        .room-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .room-type {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2d3436;
+        }
+
+        .room-id {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .room-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .room-detail {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #636e72;
+        }
+
+        .room-detail-icon {
+            width: 16px;
+            height: 16px;
+            background: #ddd;
+            border-radius: 50%;
+        }
+
+        .price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00b894;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-neuf { background: #00b894; color: white; }
+        .status-refaite { background: #74b9ff; color: white; }
+        .status-arefaire { background: #fdcb6e; color: #2d3436; }
+        .status-rienasignaler { background: #55a3ff; color: white; }
+        .status-grosdegats { background: #e17055; color: white; }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #636e72;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #ddd;
+            border-top: 4px solid #4facfe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #ff7675;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .booking-section {
+            background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            color: white;
+        }
+
+        .selected-rooms {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .selected-room {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+
+            .rooms-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🏨 Gestion Hôtel</h1>
+        <p>Système de réservation et gestion des chambres</p>
+    </div>
+
+    <div class="content">
+        <!-- Section de recherche -->
+        <div class="search-section">
+            <h2>🔍 Rechercher des chambres disponibles</h2>
+            <form class="search-form" id="searchForm">
+                <div class="form-group">
+                    <label for="startDate">Date d'arrivée</label>
+                    <input type="date" id="startDate" name="startDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="endDate">Date de départ</label>
+                    <input type="date" id="endDate" name="endDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="capacity">Capacité min.</label>
+                    <select id="capacity" name="capacity">
+                        <option value="">Toutes</option>
+                        <option value="1">1 personne</option>
+                        <option value="2">2 personnes</option>
+                        <option value="3">3 personnes</option>
+                        <option value="4">4 personnes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="roomType">Type de chambre</label>
+                    <select id="roomType" name="roomType">
+                        <option value="">Tous types</option>
+                        <option value="Simple">Simple</option>
+                        <option value="Double">Double</option>
+                        <option value="Suite">Suite</option>
+                        <option value="Familiale">Familiale</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Rechercher</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Messages d'erreur -->
+        <div class="error" id="errorMessage"></div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Recherche en cours...</p>
+        </div>
+
+        <!-- Résultats -->
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <div class="results-header">
+                <h3>Chambres disponibles</h3>
+                <div class="results-count" id="resultsCount">0 chambre(s)</div>
+            </div>
+            <div class="rooms-grid" id="roomsGrid"></div>
+        </div>
+
+        <!-- Section de réservation -->
+        <div class="booking-section" id="bookingSection" style="display: none;">
+            <h2>📝 Réservation</h2>
+            <p>Chambres sélectionnées :</p>
+            <div class="selected-rooms" id="selectedRooms"></div>
+            <div style="margin-top: 20px;">
+                <label for="clientId">ID Client :</label>
+                <input type="number" id="clientId" placeholder="Entrez l'ID du client" style="margin: 10px 0; padding: 10px; border-radius: 5px; border: none;">
+            </div>
+            <button class="btn btn-secondary" onclick="makeReservation()">Confirmer la réservation</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Configuration de l'API
+    const API_BASE_URL = 'https://localhost:7208/api/v1'; 
+
+    let selectedRooms = [];
+    let currentSearchData = null;
+
+    // Initialisation
+    document.addEventListener('DOMContentLoaded', function() {
+        // Définir les dates par défaut
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        document.getElementById('startDate').value = today.toISOString().split('T')[0];
+        document.getElementById('endDate').value = tomorrow.toISOString().split('T')[0];
+    });
+
+    // Gestionnaire du formulaire de recherche
+    document.getElementById('searchForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        await searchRooms();
+    });
+
+    // Fonction de recherche des chambres
+    async function searchRooms() {
+        const formData = new FormData(document.getElementById('searchForm'));
+        const params = new URLSearchParams();
+
+        // Ajouter les paramètres non vides
+        for (let [key, value] of formData.entries()) {
+            if (value) {
+                params.append(key, value);
+            }
+        }
+
+        // Afficher le loading
+        showLoading(true);
+        hideError();
+        hideResults();
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/booking?${params.toString()}`);
+
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+
+            const data = await response.json();
+            currentSearchData = data;
+            displayResults(data);
+
+        } catch (error) {
+            console.error('Erreur lors de la recherche:', error);
+            showError('Erreur lors de la recherche des chambres. Vérifiez que votre API est démarrée.');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    // Afficher les résultats
+    function displayResults(data) {
+        const roomsGrid = document.getElementById('roomsGrid');
+        const resultsCount = document.getElementById('resultsCount');
+
+        if (!data.availableRooms || data.availableRooms.length === 0) {
+            roomsGrid.innerHTML = '<div style="text-align: center; padding: 40px; color: #636e72;">Aucune chambre disponible pour ces critères.</div>';
+            resultsCount.textContent = '0 chambre';
+        } else {
+            roomsGrid.innerHTML = data.availableRooms.map(room => createRoomCard(room)).join('');
+            resultsCount.textContent = `${data.availableRooms.length} chambre(s) disponible(s)`;
+        }
+
+        showResults(true);
+    }
+
+    // Créer une carte de chambre
+    function createRoomCard(room) {
+        const statusClass = `status-${room.status.toLowerCase()}`;
+        const statusText = getStatusText(room.status);
+
+        return `
+                <div class="room-card" data-room-id="${room.id}">
+                    <div class="room-header">
+                        <div class="room-type">${room.type}</div>
+                        <div class="room-id">ID: ${room.id}</div>
+                    </div>
+                    <div class="room-details">
+                        <div class="room-detail">
+                            <div class="room-detail-icon"></div>
+                            <span>Capacité: ${room.capacity} pers.</span>
+                        </div>
+                        <div class="room-detail">
+                            <div class="room-detail-icon"></div>
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </div>
+                    </div>
+                    <div class="price">${room.pricePerNight}€ / nuit</div>
+                    <button class="btn btn-primary" onclick="toggleRoomSelection(${room.id}, '${room.type}', ${room.pricePerNight})" 
+                            id="btn-${room.id}">
+                        Sélectionner
+                    </button>
+                </div>
+            `;
+    }
+
+    // Obtenir le texte du statut
+    function getStatusText(status) {
+        const statusMap = {
+            'Neuf': 'Neuf',
+            'Refaite': 'Refaite',
+            'ARefaire': 'À refaire',
+            'RienASignaler': 'RAS',
+            'GrosDegats': 'Gros dégâts'
+        };
+        return statusMap[status] || status;
+    }
+
+    // Toggle sélection d'une chambre
+    function toggleRoomSelection(roomId, roomType, price) {
+        const btn = document.getElementById(`btn-${roomId}`);
+        const index = selectedRooms.findIndex(r => r.id === roomId);
+
+        if (index === -1) {
+            // Ajouter la chambre
+            selectedRooms.push({ id: roomId, type: roomType, price: price });
+            btn.textContent = 'Désélectionner';
+            btn.style.background = 'linear-gradient(135deg, #00b894 0%, #00a085 100%)';
+        } else {
+            // Retirer la chambre
+            selectedRooms.splice(index, 1);
+            btn.textContent = 'Sélectionner';
+            btn.style.background = 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)';
+        }
+
+        updateBookingSection();
+    }
+
+    // Mettre à jour la section de réservation
+    function updateBookingSection() {
+        const bookingSection = document.getElementById('bookingSection');
+        const selectedRoomsDiv = document.getElementById('selectedRooms');
+
+        if (selectedRooms.length > 0) {
+            selectedRoomsDiv.innerHTML = selectedRooms.map(room =>
+                `<div class="selected-room">${room.type} (ID: ${room.id}) - ${room.price}€/nuit</div>`
+            ).join('');
+            bookingSection.style.display = 'block';
+        } else {
+            bookingSection.style.display = 'none';
+        }
+    }
+
+    // Faire une réservation
+    async function makeReservation() {
+        const clientId = document.getElementById('clientId').value;
+
+        if (!clientId) {
+            alert('Veuillez entrer un ID client');
+            return;
+        }
+
+        if (selectedRooms.length === 0) {
+            alert('Veuillez sélectionner au moins une chambre');
+            return;
+        }
+
+        const bookingData = {
+            clientId: parseInt(clientId),
+            roomIds: selectedRooms.map(r => r.id),
+            startDate: document.getElementById('startDate').value,
+            endDate: document.getElementById('endDate').value
+        };
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/booking`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(bookingData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+
+            const result = await response.json();
+            alert('Réservation créée avec succès !');
+
+            // Réinitialiser
+            selectedRooms = [];
+            updateBookingSection();
+            searchRooms(); // Recharger les résultats
+
+        } catch (error) {
+            console.error('Erreur lors de la réservation:', error);
+            alert('Erreur lors de la création de la réservation');
+        }
+    }
+
+    // Fonctions utilitaires
+    function showLoading(show) {
+        document.getElementById('loading').classList.toggle('show', show);
+    }
+
+    function showError(message) {
+        const errorDiv = document.getElementById('errorMessage');
+        errorDiv.textContent = message;
+        errorDiv.classList.add('show');
+    }
+
+    function hideError() {
+        document.getElementById('errorMessage').classList.remove('show');
+    }
+
+    function showResults(show) {
+        document.getElementById('resultsSection').style.display = show ? 'block' : 'none';
+    }
+
+    function hideResults() {
+        showResults(false);
+    }
+</script>
+</body>
+</html>
