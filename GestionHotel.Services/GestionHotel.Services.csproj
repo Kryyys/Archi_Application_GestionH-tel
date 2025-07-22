@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GestionHotel.Apis\GestionHotel.Apis.csproj" />
+    <ProjectReference Include="..\GestionHotel.Core\GestionHotel.Core.csproj" />
+    <ProjectReference Include="..\GestionHotel.Externals.PaiementGateways\GestionHotel.Externals.PaiementGateways.csproj" />
+    <ProjectReference Include="..\GestionHotel.Tests\GestionHotel.Tests.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,19 +1,67 @@
-﻿namespace GestionHotel.Apis.Endpoints.Booking;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using GestionHotel.Services.Interfaces;
+using GestionHotel.Services.DTOs;
+using System.Threading.Tasks;
 
-public static class BookingEndpoints
+namespace GestionHotel.Apis.Endpoints.Booking
 {
-    private const string BASE_URL = "/api/v1/booking";
-
-    public static void MapBookingsEndpoints(this IEndpointRouteBuilder routes)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class BookingController : ControllerBase
     {
-        var group = routes.MapGroup(BASE_URL)
-            .WithOpenApi()
-            .WithTags("Booking");
+        private readonly BookingHandler _handler;
 
-        group.MapGet("", BookingHandler.GetAvailableRooms)
-            .WithName("GetAvailableRooms");
+        public BookingController(BookingHandler handler)
+        {
+            _handler = handler;
+        }
 
-        group.MapPost("", BookingHandler.Create)
-            .WithName("CreateBooking");
+        [HttpGet("available-rooms")]
+        public async Task<IActionResult> GetAvailableRooms([FromQuery] GetAvailableRoomsInput input)
+        {
+            var result = await _handler.HandleGetAvailableRoomsAsync(input);
+            return Ok(result);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> CreateBooking([FromBody] BookingInput input)
+        {
+            var result = await _handler.HandleCreateBookingAsync(input);
+            return CreatedAtAction(nameof(GetBooking), new { id = result.ReservationId }, result);
+        }
+
+        [HttpGet("{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetBooking(int id)
+        {
+            var result = await _handler.HandleGetBookingAsync(id);
+            return Ok(result);
+        }
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Receptionniste,Administrateur")]
+        public async Task<IActionResult> UpdateBooking(int id, [FromBody] BookingInput input)
+        {
+            var result = await _handler.HandleUpdateBookingAsync(id, input);
+            return Ok(result);
+        }
+
+        [HttpPost("{id}/cancel")]
+        [Authorize]
+        public async Task<IActionResult> CancelBooking(int id, [FromBody] CancellationInput input)
+        {
+            var result = await _handler.HandleCancelBookingAsync(id, input);
+            return Ok(result);
+        }
+
+        [HttpPost("{id}/payment")]
+        [Authorize]
+        public async Task<IActionResult> ProcessPayment(int id, [FromBody] PaymentInput input)
+        {
+            var result = await _handler.HandlePaymentAsync(id, input);
+            return Ok(result);
+        }
     }
 }
