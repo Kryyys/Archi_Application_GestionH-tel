@@ -51,6 +51,60 @@ L'objectif est d'appliquer les concepts de programmation orientée objet, les pa
 - Inclure un fichier `README.md` dans votre dépôt, détaillant comment exécuter l'application et des exemples d'utilisation.
 - Soumettre également le rapport de documentation en format PDF.
 
+
+  1. Modèles étendus
+
+Payment.cs : Gestion des paiements avec status, montants, remboursements
+Refund.cs : Gestion des remboursements avec conditions
+User.cs : Utilisateurs avec rôles (Client, Réceptionniste, Ménage)
+Notification.cs : Système de notifications (email, SMS)
+Damage.cs : Signalement de dégâts par le personnel de ménage
+CleaningTask.cs : Tâches de nettoyage avec priorisation
+
+2. Services métier essentiels
+
+ReservationService.cs : Logique complète de réservation/annulation
+PaymentService.cs : Simulation de paiement + règles de remboursement
+NotificationService.cs : Envoi d'emails/SMS pré/post séjour
+CleaningService.cs : Gestion des tâches de nettoyage et priorisation
+
+3. Endpoints par rôle
+
+Auth/ : Authentification et gestion des rôles
+Reception/ : Fonctionnalités spécifiques réceptionniste
+Cleaning/ : Interface pour le personnel de ménage
+
+4. Sécurité et middleware
+
+AuthenticationMiddleware : Vérification des tokens/sessions
+RoleAuthorizationAttribute : Contrôle d'accès par rôle
+ExceptionHandlingMiddleware : Gestion centralisée des erreurs
+
+🎯 Règles métier implémentées
+Annulation et remboursement
+
+Annulation > 48h : Remboursement automatique
+Annulation < 48h : Pas de remboursement (sauf override réceptionniste)
+Gestion des remboursements partiels
+
+Rôles et permissions
+
+Client : Réservation, annulation, consultation
+Réceptionniste : + Override annulation, gestion arrivée/départ, état chambres
+Ménage : Liste nettoyage, marquage nettoyé, signalement dégâts
+
+Notifications automatiques
+
+Email/SMS J-1 avant arrivée
+Email post-séjour pour avis client
+Notifications dégâts pour ajustement facturation
+
+Priorisation nettoyage
+
+Chambres libérées non nettoyées = priorité haute
+Chambres nettoyées non occupées depuis = priorité basse
+Chambres avec dégâts signalés = priorité critique
+
 ## Ressources Fournies
 - Une base de projet ASP.Net avec une API controller pour servir d'exemple.
 - Un projet pour simuler des services de paiement. Le contenu de ce projet ne doit pas/peut pas être modifié.
