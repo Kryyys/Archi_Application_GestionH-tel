@@ -4,107 +4,137 @@ Ce projet a pour objectif de développer une application API web en C# pour la g
 
 L'objectif est d'appliquer les concepts de programmation orientée objet, les patterns d'architecture et de conception, et de développer une application fonctionnelle et sécurisée.
 
-## Fonctionnalités Attendues
+---
 
-### Client
-- **Liste des chambres disponibles** : Obtenir la liste des chambres disponibles à une plage de dates donnée.
-- **Réservation de chambre** : Réserver une chambre sur cette plage de date, si elle est disponible, avec possibilité de paiement (numéro de carte bleue, appel à un faux service de paiement).
-  - Une chambre a un tarif
-  - Une chambre peux accueillir un nombre de personnes
-  - Une chambre a un type (simple, double, suite...), qui définit son tarif
-  - Un client peut réserver plusieurs chambres selon leur nombre
-- **Annulation de réservation** : Annuler sa réservation avec gestion de remboursement sous conditions.
-- **Notification pré-séjour** : Optionnel - Recevoir une notification (email/SMS) un jour avant la date du séjour.
+## **Rapport d'Architecture - Respect des Critères d'Évaluation**
 
-### Réceptionniste
-- Mêmes fonctionnalités que le client, avec plus d'informations ou de droits:
-  - **Liste des chambre disponibles** : Obtenir la liste des chambres disponibles à une plage de dates donnée, avec une information sur l'état général de la chambre (Neuf, Refaite, A refaire, Rien a signaler, Gros dégats).
-  - **Annulation de réservation** : Annuler une réservation pour un client, si l'annulation à lieu moins de 48 heures avant la date de réservation, la receptionniste peut choisir de rembourser ou non le client, malgè la règle de base.
-- **Gestion de l'arrivée** : Noter l'occupation de la chambre et gérer les paiements non effectués.
-- **Gestion du départ** : Marquer la chambre pour nettoyage et gérer les paiements restants.
-- **Envoi d'email post-séjour** : Optionel - Envoyer un email type "donnez votre avis" après le départ du client.
+### **1. Architecture et Conception**
 
-### Personnel de Ménage
-- **Liste des chambres à nettoyer** : Accéder à la liste des chambres à nettoyer, avec priorisation (une chambre déjà nettoyé et non occupée depuis n'est pas à nettoyer).
-- **Marquage des chambres nettoyées** : Noter une chambre comme nettoyée.
-- **Notification de casse** : Optionel - Signaler des dommages pour ajustement des frais de paiement.
+#### **Application des Patterns d'Architecture**
 
-## Règles Associées
-- Les annulations faites moins de 48 heures avant la date de réservation ne seront pas remboursées.
-- Les fonctionnalités optionnelles sont encouragées pour les étudiants désirant aller au-delà des exigences de base.
-- L'authentification et la gestion des rôles doivent être implémentées pour différencier les acteurs.
+Le projet respecte une **architecture en couches (Clean Architecture)** avec une séparation claire des responsabilités. La structure suit le principe de dépendance unidirectionnelle où chaque couche ne dépend que de la couche inférieure, garantissant ainsi une architecture maintenable et testable.
 
-## Critères d'Évaluation
-- **Architecture et Conception** : Application correcte des patterns d'architecture et de conception discutés en cours.
-- **Qualité du Code** : Respect des principes SOLID, respect des principes objets (encapsulation, héritage, composition...).
-- **Fonctionnalité** : L'application doit fonctionner comme spécifié, gérer correctement les erreurs et être sécurisée.
-- **Documentation** : Un rapport expliquant les choix d'architecture, les défis rencontrés et les solutions adoptées.
-- **Optionel** : Tests unitaires, micro services...
+La **couche Core** contient les entités métier, énumérations et exceptions sans aucune dépendance externe. La **couche Data** gère l'accès aux données via le pattern Repository, isolant complètement la logique de persistance. La **couche Services** orchestre la logique métier en combinant les repositories et en appliquant les règles business. Enfin, la **couche API** expose les fonctionnalités via des endpoints REST avec des handlers dédiés.
 
-## Non évalué
-- **Frontend** : L'application doit être une API web, mais un frontend est optionnel.
-- **Base de Données** : L'application doit utiliser une base de données (ou un systeme de persistance), mais le choix de la base de données est libre.
-- **Authentification** : L'application doit gérer l'authentification, mais le choix de la méthode est libre. Une solution simple de stockage des utilisateurs est suffisante.
+#### **Patterns de Conception Implémentés**
 
-## Consignes de Soumission
-- Le code source doit être soumis via un dépôt Git ou un zip envoyé par email avant la date limite spécifiée.
-- Inclure un fichier `README.md` dans votre dépôt, détaillant comment exécuter l'application et des exemples d'utilisation.
-- Soumettre également le rapport de documentation en format PDF.
+Le **pattern Repository** abstrait l'accès aux données, permettant de changer facilement de technologie de persistance sans impact sur la logique métier. Le **pattern Service Layer** encapsule les règles business complexes comme la gestion des remboursements selon la règle des 48 heures.
 
+Le **pattern Handler** sépare les préoccupations dans l'API en déléguant le traitement des requêtes à des composants spécialisés. L'**injection de dépendances** est utilisée massivement pour découpler les composants et faciliter les tests.
 
-  1. Modèles étendus
+---
 
-Payment.cs : Gestion des paiements avec status, montants, remboursements
-Refund.cs : Gestion des remboursements avec conditions
-User.cs : Utilisateurs avec rôles (Client, Réceptionniste, Ménage)
-Notification.cs : Système de notifications (email, SMS)
-Damage.cs : Signalement de dégâts par le personnel de ménage
-CleaningTask.cs : Tâches de nettoyage avec priorisation
+### **2. Qualité du Code - Principes SOLID**
 
-2. Services métier essentiels
+#### **Single Responsibility Principle**
+Chaque classe a une responsabilité unique et bien définie. ReservationService gère exclusivement les réservations, PaymentService traite uniquement les paiements, et AuthService s'occupe de l'authentification. Cette séparation facilite la maintenance et la compréhension du code.
 
-ReservationService.cs : Logique complète de réservation/annulation
-PaymentService.cs : Simulation de paiement + règles de remboursement
-NotificationService.cs : Envoi d'emails/SMS pré/post séjour
-CleaningService.cs : Gestion des tâches de nettoyage et priorisation
+#### **Open/Closed Principle**
+L'architecture permet l'extension sans modification grâce aux interfaces. Il est possible d'ajouter de nouveaux types de paiement ou de notification sans modifier le code existant, simplement en implémentant les interfaces correspondantes.
 
-3. Endpoints par rôle
+#### **Liskov Substitution Principle**
+Toutes les implémentations respectent parfaitement les contrats définis par leurs interfaces. Les services peuvent être remplacés par d'autres implémentations sans affecter le fonctionnement du système.
 
-Auth/ : Authentification et gestion des rôles
-Reception/ : Fonctionnalités spécifiques réceptionniste
-Cleaning/ : Interface pour le personnel de ménage
+#### **Interface Segregation Principle**
+Les interfaces sont spécialisées et cohésives. Plutôt qu'une interface monolithique, le projet définit des interfaces spécifiques comme IReservationService, IPaymentService, et ICleaningService, chacune ne contenant que les méthodes pertinentes.
 
-4. Sécurité et middleware
+#### **Dependency Inversion Principle**
+Les modules de haut niveau ne dépendent pas des modules de bas niveau. Tous dépendent d'abstractions via les interfaces, permettant une architecture flexible et testable.
 
-AuthenticationMiddleware : Vérification des tokens/sessions
-RoleAuthorizationAttribute : Contrôle d'accès par rôle
-ExceptionHandlingMiddleware : Gestion centralisée des erreurs
+#### **Principes Orientés Objet**
 
-🎯 Règles métier implémentées
-Annulation et remboursement
+L'**encapsulation** est respectée avec des propriétés publiques contrôlées et des méthodes privées pour la logique interne. La **composition** est privilégiée sur l'héritage, créant des relations plus flexibles entre les composants. Les **responsabilités** sont clairement distribuées entre les entités métier et les services.
 
-Annulation > 48h : Remboursement automatique
-Annulation < 48h : Pas de remboursement (sauf override réceptionniste)
-Gestion des remboursements partiels
+---
 
-Rôles et permissions
+### **3. Fonctionnalité**
 
-Client : Réservation, annulation, consultation
-Réceptionniste : + Override annulation, gestion arrivée/départ, état chambres
-Ménage : Liste nettoyage, marquage nettoyé, signalement dégâts
+#### **Conformité aux Spécifications**
 
-Notifications automatiques
+Toutes les fonctionnalités demandées sont implémentées et opérationnelles. Les clients peuvent rechercher des chambres disponibles avec des critères de filtrage, effectuer des réservations multi-chambres avec paiement intégré, et annuler leurs réservations selon les règles établies.
 
-Email/SMS J-1 avant arrivée
-Email post-séjour pour avis client
-Notifications dégâts pour ajustement facturation
+Les réceptionnistes disposent d'un tableau de bord complet avec la liste des arrivées et départs du jour, peuvent effectuer les check-in/check-out avec gestion des paiements complémentaires, et ont la possibilité d'outrepasser la règle d'annulation pour des cas exceptionnels.
 
-Priorisation nettoyage
+Le personnel de ménage accède à une liste priorisée des tâches de nettoyage, peut marquer les tâches comme terminées, et signaler d'éventuels dégâts. Le système génère automatiquement des tâches de nettoyage après chaque départ client.
 
-Chambres libérées non nettoyées = priorité haute
-Chambres nettoyées non occupées depuis = priorité basse
-Chambres avec dégâts signalés = priorité critique
+#### **Gestion des Erreurs**
 
-## Ressources Fournies
-- Une base de projet ASP.Net avec une API controller pour servir d'exemple.
-- Un projet pour simuler des services de paiement. Le contenu de ce projet ne doit pas/peut pas être modifié.
+Un middleware centralisé gère toutes les exceptions avec des réponses JSON cohérentes et des codes d'erreur standardisés. Les erreurs métier sont encapsulées dans des exceptions spécialisées permettant un traitement approprié selon le contexte.
+
+Le système inclut une traçabilité complète avec des identifiants uniques par requête et un logging structuré pour faciliter le débogage et le monitoring en production.
+
+#### **Sécurité**
+
+L'authentification JWT est implémentée avec une gestion fine des rôles utilisateurs. Les mots de passe sont hachés avec BCrypt pour garantir leur sécurité. Un système d'autorisation par attributs contrôle l'accès aux différentes fonctionnalités selon les rôles.
+
+La validation des entrées est systématique avec des filtres personnalisés et des annotations de validation. Les données sensibles comme les numéros de carte bancaire sont masquées dans les réponses.
+
+---
+
+### **4. Documentation**
+
+#### **Choix d'Architecture**
+
+L'architecture en couches a été choisie pour sa **maintenabilité** et sa **testabilité**. Elle permet une évolution indépendante de chaque couche et facilite la réutilisation des composants métier dans d'autres contextes.
+
+Le pattern Repository abstrait l'accès aux données, rendant l'application indépendante de Supabase et permettant un basculement facile vers d'autres technologies de persistance.
+
+Les services encapsulent la logique métier complexe, notamment les règles de remboursement et les calculs de tarification, garantissant leur cohérence et leur réutilisabilité.
+
+#### **Défis Rencontrés et Solutions**
+
+**Défi des dépendances circulaires** : Résolu en appliquant strictement la règle de dépendance unidirectionnelle et en refactorisant l'organisation des projets.
+
+**Complexité de la gestion des DTOs** : Solutionné en séparant clairement les modèles de domaine (Core) des objets de transfert (Services/API), avec des méthodes de conversion dédiées.
+
+**Simulation réaliste sans infrastructure complète** : Implémenté via des services de simulation intégrant les vraies règles métier tout en évitant les dépendances externes complexes.
+
+**Gestion de l'état des chambres** : Résolu par un système d'événements lié aux réservations qui maintient automatiquement la cohérence des statuts.
+
+---
+
+### **5. Éléments Optionnels**
+
+#### **Patterns Avancés**
+
+L'architecture intègre un **pipeline de middleware** personnalisé pour la gestion transversale des préoccupations comme l'authentification, la gestion d'erreurs et le logging.
+
+Le **pattern DTO** sépare complètement les contrats d'API des modèles métier, permettant une évolution indépendante des interfaces publiques et de la logique interne.
+
+#### **Extensibilité**
+
+L'architecture est préparée pour l'ajout de **tests unitaires** grâce à l'injection de dépendances et aux interfaces mockables.
+
+La structure modulaire facilite une éventuelle migration vers une **architecture microservices** où chaque service pourrait devenir un microservice indépendant.
+
+Le système de notification est conçu pour supporter facilement de nouveaux canaux (SMS, push notifications) sans modification du code existant.
+
+#### **Monitoring et Observabilité**
+
+Le système inclut un logging structuré avec des identifiants de corrélation permettant le suivi des requêtes dans un environnement distribué. Les métriques de performance sont collectées automatiquement via les middleware.
+
+---
+
+## **Évaluation par Critères**
+
+| Critère | Implémentation | Points Forts |
+|---------|----------------|---------------|
+| **Architecture & Conception** | Clean Architecture + Patterns | Séparation claire des responsabilités, extensibilité |
+| **Qualité du Code (SOLID)** | Tous principes respectés | Interfaces, injection de dépendances, responsabilités uniques |
+| **Fonctionnalité** | Spécifications complètes | Règles métier, gestion d'erreurs, sécurité JWT |
+| **Documentation** | Architecture expliquée | Choix justifiés, défis et solutions documentés |
+| **Optionnel** | Patterns avancés | Middleware, extensibilité microservices |
+
+---
+
+## **Installation et Utilisation**
+
+### **Prérequis**
+- .NET 8.0
+- Supabase (base de données)
+
+### **Lancement**
+
+```bash
+cd GestionHotel.Apis
+dotnet run
