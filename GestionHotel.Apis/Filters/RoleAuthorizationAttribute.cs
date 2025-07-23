@@ -17,7 +17,7 @@ namespace GestionHotel.Apis.Filters
         public void OnAuthorization(AuthorizationFilterContext context)
         {
             // Vérifier si l'utilisateur est authentifié
-            if (!context.HttpContext.User.Identity.IsAuthenticated)
+            if (context.HttpContext.User?.Identity?.IsAuthenticated != true)
             {
                 context.Result = new UnauthorizedObjectResult(new
                 {
@@ -39,16 +39,11 @@ namespace GestionHotel.Apis.Filters
             // Vérifier si le rôle est autorisé
             if (!_allowedRoles.Contains(userRole))
             {
-                context.Result = new ForbidObjectResult(new
-                {
-                    Error = "Accès refusé",
-                    Message = $"Votre rôle '{userRole}' n'est pas autorisé à accéder à cette ressource",
-                    RequiredRoles = _allowedRoles
-                });
+                context.Result = new ForbidResult($"Rôle '{userRole}' non autorisé");
                 return;
             }
 
-            // Ajouter des informations utilisateur au contexte pour utilisation ultérieure
+            // Ajouter des informations utilisateur au contexte
             var userId = context.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var userName = context.HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
 

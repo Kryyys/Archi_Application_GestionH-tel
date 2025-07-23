@@ -1,9 +1,13 @@
-namespace GestionHotel.Apis.Endpoints.Booking;
+using System;
 
-public class GetAvailableRoomsInput
+namespace GestionHotel.Apis.Endpoints.Booking
 {
-    public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
-    public int? Capacity { get; set; } // Optionnel : pour filtrer par capacité
-    public string? RoomType { get; set; } // Optionnel : pour filtrer par type
+    public class GetAvailableRoomsInput
+    {
+        public DateTime DateDebut { get; set; }
+        public DateTime DateFin { get; set; }
+        public int? NombrePersonnes { get; set; }
+        public string? TypeChambre { get; set; }
+        public decimal? BudgetMax { get; set; }
+    }
 }

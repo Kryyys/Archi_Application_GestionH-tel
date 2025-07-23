@@ -1,129 +1,147 @@
-using GestionHotel.Core.Enums;
+using System;
+using System.Collections.Generic;
 
-namespace GestionHotel.Apis.Endpoints.Booking;
-
-public class BookingView
+namespace GestionHotel.Apis.Endpoints.Booking
 {
-    public int Id { get; set; }
-    public int ClientId { get; set; }
-    public string ClientName { get; set; }
-    public string ClientEmail { get; set; }
-    public string ClientPhone { get; set; }
-    public DateTime DateDebut { get; set; }
-    public DateTime DateFin { get; set; }
-    public ReservationStatus Status { get; set; }
-    public string StatusDisplay => Status switch
+    public class BookingView
     {
-        ReservationStatus.Pending => "En attente de paiement",
-        ReservationStatus.Confirmed => "Confirmée",
-        ReservationStatus.CheckedIn => "En cours",
-        ReservationStatus.CheckedOut => "Terminée",
-        ReservationStatus.Cancelled => "Annulée",
-        ReservationStatus.NoShow => "Non présenté",
-        _ => Status.ToString()
-    };
-    
-    public int NumberOfGuests { get; set; }
-    public int NumberOfNights { get; set; }
-    public decimal TotalAmount { get; set; }
-    public decimal PaidAmount { get; set; }
-    public decimal BalanceDue { get; set; }
-    public bool IsPaid => BalanceDue <= 0;
-    
-    public List<RoomView> Rooms { get; set; } = new();
-    public List<PaymentView> Payments { get; set; } = new();
-    
-    public string? SpecialRequests { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime? CheckInTime { get; set; }
-    public DateTime? CheckOutTime { get; set; }
-    public DateTime? CancelledAt { get; set; }
-    public string? CancellationReason { get; set; }
-    
-    // Règles métier
-    public bool CanBeCancelled => Status == ReservationStatus.Pending || Status == ReservationStatus.Confirmed;
-    public bool CanBeCancelledWithRefund { get; set; }
-    public bool CanCheckIn => Status == ReservationStatus.Confirmed && DateDebut.Date <= DateTime.Now.Date;
-    public bool CanCheckOut => Status == ReservationStatus.CheckedIn;
-    public bool RequiresPayment => Status == ReservationStatus.Pending && BalanceDue > 0;
-}
+        public int Id { get; set; }
+        public int ClientId { get; set; }
+        public string ClientName { get; set; } = string.Empty;
+        public DateTime DateDebut { get; set; }
+        public DateTime DateFin { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public decimal MontantTotal { get; set; }
+        public bool PaiementEffectue { get; set; }
+        public List<RoomBookingView> Rooms { get; set; } = new();
+        public DateTime DateCreation { get; set; }
+        public string? Commentaires { get; set; }
+    }
 
-public class RoomView
-{
-    public int Id { get; set; }
-    public string RoomNumber { get; set; }
-    public string Type { get; set; }
-    public int Capacity { get; set; }
-    public decimal PricePerNight { get; set; }
-    public RoomStatus Status { get; set; }
-    public string StatusDisplay => Status switch
+    public class RoomBookingView
     {
-        RoomStatus.Neuf => "Neuf",
-        RoomStatus.Refaite => "Refaite",
-        RoomStatus.ARefaire => "À refaire",
-        RoomStatus.RienASignaler => "Rien à signaler",
-        RoomStatus.GrosDegats => "Gros dégâts",
-        _ => Status.ToString()
-    };
-}
+        public int Id { get; set; }
+        public string Numero { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public decimal Tarif { get; set; }
+        public int Capacite { get; set; }
+        public string Status { get; set; } = "Disponible";
+        public bool IsAvailable { get; set; } = true;
+        public string? Notes { get; set; }
+    }
 
-public class PaymentView
-{
-    public int Id { get; set; }
-    public decimal Amount { get; set; }
-    public PaymentMethod Method { get; set; }
-    public string MethodDisplay => Method switch
+    public class PaymentBookingView
     {
-        PaymentMethod.CreditCard => "Carte de crédit",
-        PaymentMethod.DebitCard => "Carte de débit",
-        PaymentMethod.Cash => "Espèces",
-        PaymentMethod.BankTransfer => "Virement bancaire",
-        _ => Method.ToString()
-    };
-    
-    public PaymentStatus Status { get; set; }
-    public string StatusDisplay => Status switch
+        public int Id { get; set; }
+        public int ReservationId { get; set; }
+        public decimal Montant { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public string TransactionId { get; set; } = string.Empty;
+        public string Method { get; set; } = string.Empty;
+        public DateTime DatePaiement { get; set; }
+        public string? DetailsCarte { get; set; }
+    }
+
+    public class AvailableRoomsBookingView
     {
-        PaymentStatus.Pending => "En attente",
-        PaymentStatus.Processing => "En traitement",
-        PaymentStatus.Completed => "Complété",
-        PaymentStatus.Failed => "Échoué",
-        PaymentStatus.Cancelled => "Annulé",
-        PaymentStatus.Refunded => "Remboursé",
-        PaymentStatus.PartiallyRefunded => "Partiellement remboursé",
-        _ => Status.ToString()
-    };
-    
-    public string? CardNumber { get; set; } // Masqué
-    public string? TransactionId { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime? ProcessedAt { get; set; }
-    public string? FailureReason { get; set; }
-}
+        public List<RoomBookingView> Rooms { get; set; } = new();
+        public DateTime DateDebut { get; set; }
+        public DateTime DateFin { get; set; }
+        public int NombreNuits { get; set; }
+        public decimal PrixMinimum { get; set; }
+        public decimal PrixMaximum { get; set; }
+        public string Message { get; set; } = string.Empty;
+    }
 
-public class AvailableRoomView
-{
-    public int Id { get; set; }
-    public string RoomNumber { get; set; }
-    public string Type { get; set; }
-    public int Capacity { get; set; }
-    public decimal PricePerNight { get; set; }
-    public decimal TotalPrice { get; set; } // Prix pour toute la durée
-    public RoomStatus Status { get; set; }
-    public bool IsAvailable { get; set; }
-    public string Description { get; set; }
-    public List<string> Amenities { get; set; } = new();
-}
+    public class CancellationBookingView
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public bool RemboursementApplique { get; set; }
+        public decimal MontantRembourse { get; set; }
+        public decimal FraisAppliques { get; set; }
+        public string? RaisonRefusRemboursement { get; set; }
+        public DateTime DateLimiteRemboursement { get; set; }
+    }
 
-public class BookingListView
-{
-    public int Id { get; set; }
-    public string ClientName { get; set; }
-    public DateTime DateDebut { get; set; }
-    public DateTime DateFin { get; set; }
-    public ReservationStatus Status { get; set; }
-    public string StatusDisplay { get; set; }
-    public int NumberOfRooms { get; set; }
-    public decimal TotalAmount { get; set; }
-    public bool IsPaid { get; set; }
+    // Classes de constantes pour remplacer les enums
+    public static class BookingConstants
+    {
+        public static class RoomStatus
+        {
+            public const string Disponible = "Disponible";
+            public const string Occupee = "Occupee";
+            public const string EnNettoyage = "EnNettoyage";
+            public const string HorsService = "HorsService";
+            public const string Maintenance = "Maintenance";
+            public const string Neuf = "Neuf";
+            public const string Refaite = "Refaite";
+            public const string ARefaire = "ARefaire";
+            public const string RienASignaler = "RienASignaler";
+            public const string GrosDegats = "GrosDegats";
+        }
+
+        public static class PaymentMethod
+        {
+            public const string CarteBancaire = "CarteBancaire";
+            public const string Especes = "Especes";
+            public const string Virement = "Virement";
+            public const string PayPal = "PayPal";
+            public const string ApplePay = "ApplePay";
+            public const string GooglePay = "GooglePay";
+        }
+
+        public static class ReservationStatus
+        {
+            public const string EnAttente = "EnAttente";
+            public const string Confirmee = "Confirmee";
+            public const string CheckedIn = "CheckedIn";
+            public const string CheckedOut = "CheckedOut";
+            public const string Annulee = "Annulee";
+            public const string NoShow = "NoShow";
+        }
+
+        public static class PaymentStatus
+        {
+            public const string EnAttente = "EnAttente";
+            public const string Reussie = "Reussie";
+            public const string Echouee = "Echouee";
+            public const string Remboursee = "Remboursee";
+            public const string PartielleRemboursee = "PartielleRemboursee";
+            public const string Contestee = "Contestee";
+        }
+    }
+
+    // Modèles pour les réponses d'API
+    public class BookingResponse
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public BookingView? Data { get; set; }
+        public string? ErrorCode { get; set; }
+    }
+
+    public class AvailableRoomsResponse
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public AvailableRoomsBookingView? Data { get; set; }
+        public string? ErrorCode { get; set; }
+    }
+
+    public class PaymentResponse
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public PaymentBookingView? Data { get; set; }
+        public string? ErrorCode { get; set; }
+    }
+
+    public class CancellationResponse
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public CancellationBookingView? Data { get; set; }
+        public string? ErrorCode { get; set; }
+    }
 }

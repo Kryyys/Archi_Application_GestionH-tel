@@ -1,9 +1,22 @@
-namespace GestionHotel.Apis.Endpoints.Booking;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
-public class BookingInput
+namespace GestionHotel.Apis.Endpoints.Booking
 {
-    public int ClientId { get; set; }
-    public List<int> RoomIds { get; set; }
-    public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
+    public class BookingInput
+    {
+        [Required]
+        public int ClientId { get; set; }
+        
+        [Required]
+        public DateTime DateDebut { get; set; }
+        
+        [Required]
+        public DateTime DateFin { get; set; }
+        
+        public List<int> ChambresIds { get; set; } = new();
+        
+        public string? Commentaires { get; set; }
+    }
 }
